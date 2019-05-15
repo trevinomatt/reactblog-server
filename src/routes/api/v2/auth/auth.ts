@@ -22,7 +22,7 @@ const auth = new Router();
  *
  * POST /api/v2/auth/sendmail
  * {
- *  email: "webdev@matthewtrevino.net"
+ *  email: "public.velopert@gmail.com"
  * }
  */
 auth.post('/sendmail', async ctx => {
@@ -265,7 +265,16 @@ auth.use('/social', social.routes());
 
 /* GENERAL */
 auth.get('/check', async ctx => {});
-auth.post('/logout', async ctx => {});
+auth.post('/logout', async ctx => {
+  // clears cookies
+  ctx.cookies.set('access_token', undefined, {
+    domain: process.env.NODE_ENV === 'development' ? undefined : '.velog.io'
+  });
+  ctx.cookies.set('refresh_token', undefined, {
+    domain: process.env.NODE_ENV === 'development' ? undefined : '.velog.io'
+  });
+  ctx.status = 204;
+});
 auth.post('/certify', async ctx => {});
 
 export default auth;
