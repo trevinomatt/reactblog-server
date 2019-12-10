@@ -13,13 +13,14 @@ import {
 import Joi from 'joi';
 import { validateBody } from '../../../../../lib/utils';
 import UserProfile from '../../../../../entity/UserProfile';
-import VelogConfig from '../../../../../entity/VelogConfig';
+import reactlogConfig from '../../../../../entity/ReactlogConfig';
 import downloadFile from '../../../../../lib/downloadFile';
 import UserImage from '../../../../../entity/UserImage';
 import { generateUploadPath } from '../../files';
 import AWS from 'aws-sdk';
 import { getFacebookAccessToken, getFacebookProfile } from '../../../../../lib/social/facebook';
 import { getGoogleAccessToken, getGoogleProfile } from '../../../../../lib/social/google';
+import UserMeta from '../../../../../entity/UserMeta';
 
 const s3 = new AWS.S3({
   region: 'ap-northeast-2',
@@ -93,7 +94,7 @@ async function syncProfileImage(url: string, user: User) {
 
   result.cleanup();
 
-  return `https://images.velog.io/${key}`;
+  return `https://images.reactlog.io/${key}`;
 }
 
 /**
@@ -168,7 +169,8 @@ export const socialRegister: Middleware = async ctx => {
     }
 
     const userProfileRepo = getRepository(UserProfile);
-    const velogConfigRepo = getRepository(VelogConfig);
+    const reactlogConfigRepo = getRepository(ReactlogConfig);
+    const userMetaRepo = getRepository(UserMeta);
 
     // create user
     const user = new User();
@@ -202,10 +204,14 @@ export const socialRegister: Middleware = async ctx => {
 
     await userProfileRepo.save(profile);
 
-    // create velog config
-    const velogConfig = new VelogConfig();
-    velogConfig.fk_user_id = user.id;
-    await velogConfigRepo.save(velogConfig);
+    // create velog config and meta
+    const reactlogConfig = new ReactlogConfig();
+    reactlogConfig.fk_user_id = user.id;
+
+    const userMeta = new UserMeta();
+    userMeta.fk_user_id = user.id;
+
+    await Promise.all([reactlogConfigRepo.save(reactlogConfig), userMetaRepo.save(userMeta)]);
 
     const tokens = await user.generateUserToken();
     setTokenCookie(ctx, tokens);

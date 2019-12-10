@@ -15,10 +15,10 @@ import DataLoader from 'dataloader';
 import { normalize } from '../lib/utils';
 
 /** Created with TypeORM  **/
-@Entity('velog_configs', {
+@Entity('reactlog_configs', {
   synchronize: true
 })
-export default class VelogConfig {
+export default class ReactlogConfig {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -36,7 +36,7 @@ export default class VelogConfig {
   @Column({ length: 255, nullable: true })
   logo_image!: string;
 
-  @OneToOne(type => User, { cascade: true })
+  @OneToOne(type => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'fk_user_id' })
   user!: User;
 
@@ -44,11 +44,11 @@ export default class VelogConfig {
   fk_user_id!: string;
 }
 
-export const createVelogConfigLoader = () =>
-  new DataLoader<string, VelogConfig>(async userIds => {
-    const repo = getRepository(VelogConfig);
+export const createReactlogConfigLoader = () =>
+  new DataLoader<string, ReactlogConfig>(async userIds => {
+    const repo = getRepository(ReactlogConfig);
     const configs = await repo
-      .createQueryBuilder('velog_configs')
+      .createQueryBuilder('reactlog_configs')
       .where('fk_user_id IN (:...userIds)', { userIds })
       .getMany();
     const normalized = normalize(configs, config => config.fk_user_id);
