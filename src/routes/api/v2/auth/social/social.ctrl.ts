@@ -13,7 +13,7 @@ import {
 import Joi from 'joi';
 import { validateBody } from '../../../../../lib/utils';
 import UserProfile from '../../../../../entity/UserProfile';
-import reactlogConfig from '../../../../../entity/ReactlogConfig';
+import VelogConfig from '../../../../../entity/VelogConfig';
 import downloadFile from '../../../../../lib/downloadFile';
 import UserImage from '../../../../../entity/UserImage';
 import { generateUploadPath } from '../../files';
@@ -33,7 +33,8 @@ const {
   FACEBOOK_ID,
   FACEBOOK_SECRET,
   GOOGLE_ID,
-  GOOGLE_SECRET
+  GOOGLE_SECRET,
+  CLIENT_HOST
 } = process.env;
 
 if (!GITHUB_ID || !GITHUB_SECRET) {
@@ -94,7 +95,7 @@ async function syncProfileImage(url: string, user: User) {
 
   result.cleanup();
 
-  return `https://images.reactlog.io/${key}`;
+  return `https://images.velog.io/${key}`;
 }
 
 /**
@@ -169,7 +170,7 @@ export const socialRegister: Middleware = async ctx => {
     }
 
     const userProfileRepo = getRepository(UserProfile);
-    const reactlogConfigRepo = getRepository(ReactlogConfig);
+    const velogConfigRepo = getRepository(VelogConfig);
     const userMetaRepo = getRepository(UserMeta);
 
     // create user
@@ -205,13 +206,13 @@ export const socialRegister: Middleware = async ctx => {
     await userProfileRepo.save(profile);
 
     // create velog config and meta
-    const reactlogConfig = new ReactlogConfig();
-    reactlogConfig.fk_user_id = user.id;
+    const velogConfig = new VelogConfig();
+    velogConfig.fk_user_id = user.id;
 
     const userMeta = new UserMeta();
     userMeta.fk_user_id = user.id;
 
-    await Promise.all([reactlogConfigRepo.save(reactlogConfig), userMetaRepo.save(userMeta)]);
+    await Promise.all([velogConfigRepo.save(velogConfig), userMetaRepo.save(userMeta)]);
 
     const tokens = await user.generateUserToken();
     setTokenCookie(ctx, tokens);
@@ -347,9 +348,14 @@ export const socialCallback: Middleware = async ctx => {
       const tokens = await user.generateUserToken();
       setTokenCookie(ctx, tokens);
       const redirectUrl =
-        process.env.NODE_ENV === 'development' ? 'https://localhost:3000/' : 'https://reactlog.io/';
+        process.env.NODE_ENV === 'development'
+          ? 'https://localhost:3000'
+          : `https://${CLIENT_HOST}`;
 
-      ctx.redirect(encodeURI(redirectUrl));
+      const state = ctx.query.state ? (JSON.parse(ctx.query.state) as { next: string }) : null;
+      const next = ctx.query.next || state?.next || '/';
+
+      ctx.redirect(encodeURI(redirectUrl.concat(next)));
       return;
     }
 
@@ -366,7 +372,7 @@ export const socialCallback: Middleware = async ctx => {
       const tokens = await user.generateUserToken();
       setTokenCookie(ctx, tokens);
       const redirectUrl =
-        process.env.NODE_ENV === 'development' ? 'https://localhost:3000/' : 'https://reactlog.io/';
+        process.env.NODE_ENV === 'development' ? 'https://localhost:3000/' : 'https://velog.io/';
       ctx.redirect(encodeURI(redirectUrl));
       console.log('user');
       console.log(encodeURI(redirectUrl));
@@ -392,7 +398,7 @@ export const socialCallback: Middleware = async ctx => {
     const redirectUrl =
       process.env.NODE_ENV === 'development'
         ? 'https://localhost:3000/register?social=1'
-        : 'https://reactlog.io/register?social =1';
+        : 'https://velog.io/register?social=1';
     ctx.redirect(encodeURI(redirectUrl));
   } catch (e) {
     ctx.throw(500, e);
