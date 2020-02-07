@@ -13,7 +13,7 @@ import {
 import Joi from 'joi';
 import { validateBody } from '../../../../../lib/utils';
 import UserProfile from '../../../../../entity/UserProfile';
-import VelogConfig from '../../../../../entity/VelogConfig';
+import ReactlogConfig from '../../../../../entity/ReactlogConfig';
 import downloadFile from '../../../../../lib/downloadFile';
 import UserImage from '../../../../../entity/UserImage';
 import { generateUploadPath } from '../../files';
@@ -86,7 +86,7 @@ async function syncProfileImage(url: string, user: User) {
   // upload
   await s3
     .upload({
-      Bucket: 's3.images.velog.io',
+      Bucket: 's3.images.reactlog.io',
       Key: key,
       Body: result.stream,
       ContentType: result.contentType
@@ -95,7 +95,7 @@ async function syncProfileImage(url: string, user: User) {
 
   result.cleanup();
 
-  return `https://images.velog.io/${key}`;
+  return `https://images.reactlog.io/${key}`;
 }
 
 /**
@@ -170,7 +170,7 @@ export const socialRegister: Middleware = async ctx => {
     }
 
     const userProfileRepo = getRepository(UserProfile);
-    const velogConfigRepo = getRepository(VelogConfig);
+    const reactlogConfigRepo = getRepository(ReactlogConfig);
     const userMetaRepo = getRepository(UserMeta);
 
     // create user
@@ -205,14 +205,14 @@ export const socialRegister: Middleware = async ctx => {
 
     await userProfileRepo.save(profile);
 
-    // create velog config and meta
-    const velogConfig = new VelogConfig();
-    velogConfig.fk_user_id = user.id;
+    // create reactlog config and meta
+    const reactlogConfig = new ReactlogConfig();
+    reactlogConfig.fk_user_id = user.id;
 
     const userMeta = new UserMeta();
     userMeta.fk_user_id = user.id;
 
-    await Promise.all([velogConfigRepo.save(velogConfig), userMetaRepo.save(userMeta)]);
+    await Promise.all([reactlogConfigRepo.save(reactlogConfig), userMetaRepo.save(userMeta)]);
 
     const tokens = await user.generateUserToken();
     setTokenCookie(ctx, tokens);
@@ -372,7 +372,7 @@ export const socialCallback: Middleware = async ctx => {
       const tokens = await user.generateUserToken();
       setTokenCookie(ctx, tokens);
       const redirectUrl =
-        process.env.NODE_ENV === 'development' ? 'https://localhost:3000/' : 'https://velog.io/';
+        process.env.NODE_ENV === 'development' ? 'https://localhost:3000/' : 'https://reactlog.io/';
       ctx.redirect(encodeURI(redirectUrl));
       console.log('user');
       console.log(encodeURI(redirectUrl));
@@ -398,7 +398,7 @@ export const socialCallback: Middleware = async ctx => {
     const redirectUrl =
       process.env.NODE_ENV === 'development'
         ? 'https://localhost:3000/register?social=1'
-        : 'https://velog.io/register?social=1';
+        : 'https://reactlog.io/register?social=1';
     ctx.redirect(encodeURI(redirectUrl));
   } catch (e) {
     ctx.throw(500, e);

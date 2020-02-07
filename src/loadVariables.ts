@@ -9,7 +9,7 @@ const envPromise: GetParametersPromise | null =
     ? null
     : ssm
         .getParametersByPath({
-          Path: '/velog-v2/',
+          Path: '/reactlog-v2/',
           WithDecryption: true
         })
         .promise();

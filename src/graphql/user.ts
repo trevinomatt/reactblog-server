@@ -2,7 +2,7 @@ import { ApolloContext } from './../app';
 import { gql, IResolvers, AuthenticationError, ApolloError } from 'apollo-server-koa';
 import User from '../entity/User';
 import { getRepository, getManager } from 'typeorm';
-import VelogConfig from '../entity/VelogConfig';
+import ReactlogConfig from '../entity/ReactlogConfig';
 import Series from '../entity/Series';
 import UserProfile from '../entity/UserProfile';
 import { checkEmpty } from '../lib/utils';
@@ -18,7 +18,7 @@ export const typeDef = gql`
     updated_at: Date
     is_certified: Boolean
     profile: UserProfile
-    velog_config: VelogConfig
+    reactlog_config: ReactlogConfig
     series_list: [Series]
     user_meta: UserMeta
   }
@@ -32,7 +32,7 @@ export const typeDef = gql`
     about: String
     profile_links: JSON
   }
-  type VelogConfig {
+  type ReactlogConfig {
     id: ID!
     title: String
     logo_image: String
@@ -44,7 +44,7 @@ export const typeDef = gql`
   }
   extend type Query {
     user(id: ID, username: String): User
-    velog_config(username: String): VelogConfig
+    reactlog_config(username: String): ReactlogConfig
     auth: User
     unregister_token: String
   }
@@ -52,7 +52,7 @@ export const typeDef = gql`
     update_about(about: String!): UserProfile
     update_thumbnail(url: String): UserProfile
     update_profile(display_name: String!, short_bio: String!): UserProfile
-    update_velog_title(title: String!): VelogConfig
+    update_reactlog_title(title: String!): ReactlogConfig
     update_social_info(profile_links: JSON!): UserProfile
     update_email_rules(notification: Boolean!, promotion: Boolean!): UserMeta
     unregister(token: String!): Boolean
@@ -79,9 +79,9 @@ export const resolvers: IResolvers<any, ApolloContext> = {
     profile: async (parent: User, _: any, { loaders }: ApolloContext) => {
       return loaders.userProfile.load(parent.id);
     },
-    velog_config: async (parent: User, _: any, context: ApolloContext) => {
+    reactlog_config: async (parent: User, _: any, context: ApolloContext) => {
       const { loaders }: ApolloContext = context;
-      return loaders.velogConfig.load(parent.id);
+      return loaders.reactlogConfig.load(parent.id);
     },
     email: (parent: User, _: any, context: any) => {
       if (context.user_id !== parent.id) {
@@ -129,14 +129,14 @@ export const resolvers: IResolvers<any, ApolloContext> = {
         console.log(e);
       }
     },
-    velog_config: async (parent: any, { username }: any) => {
-      const repo = getRepository(VelogConfig);
-      const velogConfig = repo
-        .createQueryBuilder('velog_config')
-        .leftJoinAndSelect('velog_config.user', 'user')
+    reactlog_config: async (parent: any, { username }: any) => {
+      const repo = getRepository(ReactlogConfig);
+      const reactlogConfig = repo
+        .createQueryBuilder('reactlog_config')
+        .leftJoinAndSelect('reactlog_config.user', 'user')
         .where('user.username = :username', { username })
         .getOne();
-      return velogConfig;
+      return reactlogConfig;
     },
     auth: async (parent: any, params: any, ctx) => {
       if (!ctx.user_id) return null;
@@ -192,23 +192,23 @@ export const resolvers: IResolvers<any, ApolloContext> = {
         short_bio: args.short_bio
       });
     },
-    update_velog_title: async (parent: any, args: { title: string }, ctx) => {
+    update_reactlog_title: async (parent: any, args: { title: string }, ctx) => {
       if (!ctx.user_id) {
         throw new AuthenticationError('Not Logged In');
       }
       if (args.title === '' || checkEmpty(args.title)) {
         throw new ApolloError('Title must not be empty', 'BAD_REQUEST');
       }
-      const velogConfigRepo = getRepository(VelogConfig);
-      const velogConfig = await velogConfigRepo.findOne({
+      const reactlogConfigRepo = getRepository(ReactlogConfig);
+      const reactlogConfig = await reactlogConfigRepo.findOne({
         where: {
           fk_user_id: ctx.user_id
         }
       });
-      if (!velogConfig) throw new ApolloError('Failed to retrieve velog config');
-      velogConfig.title = args.title;
-      await velogConfigRepo.save(velogConfig);
-      return velogConfig;
+      if (!reactlogConfig) throw new ApolloError('Failed to retrieve reactlog config');
+      reactlogConfig.title = args.title;
+      await reactlogConfigRepo.save(reactlogConfig);
+      return reactlogConfig;
     },
     update_social_info: async (
       parent: any,

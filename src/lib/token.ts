@@ -14,7 +14,7 @@ if (!SECRET_KEY && process.env.NODE_ENV === 'development') {
 
 export const generateToken = async (payload: any, options?: SignOptions): Promise<string> => {
   const jwtOptions: SignOptions = {
-    issuer: 'velog.io',
+    issuer: 'reactlog.io',
     expiresIn: '7d',
     ...options
   };
@@ -55,13 +55,13 @@ export function setTokenCookie(
   ctx.cookies.set('access_token', tokens.accessToken, {
     httpOnly: true,
     maxAge: 1000 * 60 * 60,
-    domain: process.env.NODE_ENV === 'development' ? undefined : '.velog.io'
+    domain: process.env.NODE_ENV === 'development' ? undefined : '.reactlog.io'
   });
 
   ctx.cookies.set('refresh_token', tokens.refreshToken, {
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 30,
-    domain: process.env.NODE_ENV === 'development' ? undefined : '.velog.io'
+    domain: process.env.NODE_ENV === 'development' ? undefined : '.reactlog.io'
   });
 }
 

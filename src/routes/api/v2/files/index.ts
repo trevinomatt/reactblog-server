@@ -9,7 +9,7 @@ import UserImage from '../../../../entity/UserImage';
 import { getRepository } from 'typeorm';
 import createLoaders from '../../../../lib/createLoader';
 
-const BUCKET_NAME = 's3.images.velog.io';
+const BUCKET_NAME = 's3.images.reactlog.io';
 
 const files = new Router();
 
@@ -82,7 +82,7 @@ files.post('/create-url', authorized, async ctx => {
     await userImageRepo.save(userImage);
 
     ctx.body = {
-      image_path: `https://images.velog.io/${userImage.path}`,
+      image_path: `https://images.reactlog.io/${userImage.path}`,
       signed_url: signedUrl
     };
   } catch (e) {

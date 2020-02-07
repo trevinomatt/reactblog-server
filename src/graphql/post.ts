@@ -628,8 +628,8 @@ export const resolvers: IResolvers<any, ApolloContext> = {
 
       const { username } = post.user;
       const postCacheKey = `ssr:/@${username}/${post.url_slug}`;
-      const userVelogCacheKey = `ssr:/@${username}`;
-      const cacheKeys = [postCacheKey, userVelogCacheKey];
+      const userReactlogCacheKey = `ssr:/@${username}`;
+      const cacheKeys = [postCacheKey, userReactlogCacheKey];
 
       const prevSeriesPost = await seriesPostsRepo.findOne({
         fk_post_id: post.id
@@ -721,8 +721,8 @@ export const resolvers: IResolvers<any, ApolloContext> = {
 
       const { username } = post.user;
       const postCacheKey = `ssr:/@${username}/${post.url_slug}`;
-      const userVelogCacheKey = `ssr:/@${username}`;
-      const cacheKeys = [postCacheKey, userVelogCacheKey];
+      const userReactlogCacheKey = `ssr:/@${username}`;
+      const cacheKeys = [postCacheKey, userReactlogCacheKey];
 
       await postRepo.remove(post);
       if (seriesPost) {

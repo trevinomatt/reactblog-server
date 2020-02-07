@@ -17,7 +17,7 @@ import User from './User';
 import UserImage from './UserImage';
 import UserMeta from './UserMeta';
 import UserProfile from './UserProfile';
-import VelogConfig from './VelogConfig';
+import ReactlogConfig from './ReactlogConfig';
 import UrlSlugHistory from './UrlSlugHistory';
 
 const entities = [
@@ -40,7 +40,7 @@ const entities = [
   UserImage,
   UserMeta,
   UserProfile,
-  VelogConfig,
+  ReactlogConfig,
   UrlSlugHistory
 ];
 

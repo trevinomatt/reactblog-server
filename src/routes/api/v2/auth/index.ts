@@ -12,7 +12,7 @@ import sendMail from '../../../../lib/sendMail';
 import { generateToken, decodeToken, setTokenCookie } from '../../../../lib/token';
 import { decode } from 'punycode';
 import UserProfile from '../../../../entity/UserProfile';
-import VelogConfig from '../../../../entity/VelogConfig';
+import ReactlogConfig from '../../../../entity/ReactlogConfig';
 import UserMeta from '../../../../entity/UserMeta';
 
 const auth = new Router();
@@ -55,7 +55,7 @@ auth.post('/sendmail', async ctx => {
     await sendMail({
       to: email,
       ...emailTemplate,
-      from: 'verify@velog.io'
+      from: 'verify@reactlog.io'
     });
 
     ctx.body = {
@@ -249,16 +249,16 @@ auth.post('/register/local', async ctx => {
   profile.short_bio = short_bio;
   await getRepository(UserProfile).save(profile);
 
-  const velogConfigRepo = getRepository(VelogConfig);
+  const reactlogConfigRepo = getRepository(ReactlogConfig);
   const userMetaRepo = getRepository(UserMeta);
 
-  const velogConfig = new VelogConfig();
-  velogConfig.fk_user_id = user.id;
+  const reactlogConfig = new ReactlogConfig();
+  reactlogConfig.fk_user_id = user.id;
 
   const userMeta = new UserMeta();
   userMeta.fk_user_id = user.id;
 
-  await Promise.all([velogConfigRepo.save(velogConfig), userMetaRepo.save(userMeta)]);
+  await Promise.all([reactlogConfigRepo.save(reactlogConfig), userMetaRepo.save(userMeta)]);
 
   const tokens = await user.generateUserToken();
   setTokenCookie(ctx, tokens);
@@ -282,10 +282,10 @@ auth.get('/check', async ctx => {
 auth.post('/logout', async ctx => {
   // clears cookies
   ctx.cookies.set('access_token', '', {
-    domain: process.env.NODE_ENV === 'development' ? undefined : '.velog.io'
+    domain: process.env.NODE_ENV === 'development' ? undefined : '.reactlog.io'
   });
   ctx.cookies.set('refresh_token', '', {
-    domain: process.env.NODE_ENV === 'development' ? undefined : '.velog.io'
+    domain: process.env.NODE_ENV === 'development' ? undefined : '.reactlog.io'
   });
   ctx.status = 204;
 });
