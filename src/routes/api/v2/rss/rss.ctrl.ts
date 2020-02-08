@@ -8,7 +8,7 @@ import ReactlogConfig from '../../../../entity/ReactlogConfig';
 
 function convert(post: Post): Item {
   const { username } = post.user;
-  const link = `https://reactlog.io/${username}/${encodeURI(post.url_slug)}}`;
+  const link = `https://reactlog.io/${username}/${encodeURI(post.url_slug)}`;
   return {
     link,
     title: post.title,
@@ -16,6 +16,7 @@ function convert(post: Post): Item {
     id: link,
     image: post.thumbnail || undefined,
     date: post.released_at,
+
     author: [
       {
         name: post.user.profile.display_name,
@@ -40,18 +41,18 @@ export const getEntireFeed: Middleware = async ctx => {
   const feed = new Feed({
     title: 'reactlog',
     description:
-      'Blog Service for developer. Start at here right now.',
+      '개발자들을 위한 블로그 서비스. 어디서 글 쓸지 고민하지 말고 벨로그에서 시작하세요.',
     link: 'https://reactlog.io/',
     id: 'https://reactlog.io/',
     image: 'https://images.reactlog.io/reactlog.png',
     updated: posts[0]?.released_at,
-    copyright: 'Copyright (C) 2020. Reactlog. All rights reserved.'
+    copyright: 'Copyright (C) 2019. Reactlog. All rights reserved.'
   });
 
   const postFeeds = posts.map(convert);
   postFeeds.forEach(feed.addItem);
   ctx.type = 'text/xml; charset=UTF-8';
-  ctx.body = feed.atom1();
+  ctx.body = feed.rss2();
 };
 
 export const getUserFeed: Middleware = async ctx => {
@@ -93,5 +94,5 @@ export const getUserFeed: Middleware = async ctx => {
   const postFeeds = posts.map(convert);
   postFeeds.forEach(feed.addItem);
   ctx.type = 'text/xml; charset=UTF-8';
-  ctx.body = feed.atom1();
+  ctx.body = feed.rss2();
 };
