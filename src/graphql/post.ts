@@ -628,8 +628,8 @@ export const resolvers: IResolvers<any, ApolloContext> = {
 
       const { username } = post.user;
       const postCacheKey = `ssr:/@${username}/${post.url_slug}`;
-      const userReactlogCacheKey = `ssr:/@${username}`;
-      const cacheKeys = [postCacheKey, userReactlogCacheKey];
+      const userVelogCacheKey = `ssr:/@${username}`;
+      const cacheKeys = [postCacheKey, userVelogCacheKey];
 
       const prevSeriesPost = await seriesPostsRepo.findOne({
         fk_post_id: post.id
@@ -721,8 +721,8 @@ export const resolvers: IResolvers<any, ApolloContext> = {
 
       const { username } = post.user;
       const postCacheKey = `ssr:/@${username}/${post.url_slug}`;
-      const userReactlogCacheKey = `ssr:/@${username}`;
-      const cacheKeys = [postCacheKey, userReactlogCacheKey];
+      const userVelogCacheKey = `ssr:/@${username}`;
+      const cacheKeys = [postCacheKey, userVelogCacheKey];
 
       await postRepo.remove(post);
       if (seriesPost) {
@@ -790,7 +790,7 @@ export const resolvers: IResolvers<any, ApolloContext> = {
       score.fk_post_id = args.id;
       score.score = 5;
       score.fk_user_id = ctx.user_id;
-      postScoreRepo.save(score);
+      await postScoreRepo.save(score);
 
       return post;
     },
@@ -834,7 +834,7 @@ export const resolvers: IResolvers<any, ApolloContext> = {
       await postRepo.save(post);
 
       const postScoreRepo = getRepository(PostScore);
-      postScoreRepo
+      await postScoreRepo
         .createQueryBuilder()
         .delete()
         .where('fk_post_id = :postId', { postId: args.id })
@@ -880,7 +880,7 @@ export const resolvers: IResolvers<any, ApolloContext> = {
         score.fk_post_id = id;
         score.type = 'READ';
         score.score = 0.75;
-        postScoreRepo.save(score);
+        await postScoreRepo.save(score);
       }
 
       return true;
